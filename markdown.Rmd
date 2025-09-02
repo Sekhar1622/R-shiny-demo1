@@ -1,0 +1,99 @@
+---
+title: "R mardown"
+output:
+  html_document:
+    theme: united
+    toc: true
+    number_section: false
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+      
+---
+```
+eval: I am fan of myself.
+```
+```{r echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(formatters)
+library(plotly)
+library(pharmaverseadam)
+library(DT)
+```
+
+
+
+# M330831 Sekhar
+
+## Health
+**Study**: 12345  
+**Indication**: Advanced Solid tumor  
+**Study start date**: 08^th^ Nov 2024  
+**Cut date**: 01^th^ Jan 2025~DSUR~  
+~~AE special interset information~~  
+
+## *Image loading*
+ <div style="text-align: center;">  
+----This is the Image----  
+![Fig](image1.jpg){width=50% height=50%}
+</div>
+
+```{r echo=FALSE, fig.cap = "FIG IMAGE OF SOLID TUMOR"}
+knitr::include_graphics("image1.jpg")
+```
+
+## In line coding  
+``` {r echo=FALSE}
+ae_info <- adae %>% count(AETERM) %>% 
+  arrange(n) %>% slice(0:5)
+```
+ 
+Adverse event `r ae_info$AETERM`
+
+## Dataset {.tabset}
+### interactive
+[Click here 😊](https://rstudio.github.io/DT/extensions.html)
+```{r echo=FALSE}
+datatable(data.frame(adsl))
+```
+### static
+```{r echo=FALSE}
+kable(head(adsl))
+```
+## Plots
+
+```{r echo=FALSE,warning=FALSE, message=FALSE}
+
+adlb <- ex_adlb %>% filter(PARAMCD == "ALT")  # Filter all data for ALT parameter
+
+plot_ly(data = adlb, x = ~ADY, y = ~AVAL, color = ~USUBJID, type = "scatter", mode = "lines") %>%
+
+        add_lines() %>%
+
+        layout(
+
+          title = "Lab Plot",  # Title of the plot
+
+          xaxis = list(title = "Time since treatment"),  # X-axis label
+
+          yaxis = list(title = "ALT"),  # Y-axis label
+
+          height = 300, width = 800  # Dimensions of the plot
+
+        )
+
+```
+ 
+## loops {.tabset}
+```{r echo=FALSE, results='asis'}
+for (subject in adsl$USUBJID[1:5]){
+  cat('\n')
+  cat("### ", subject, "\n")
+  ae_info = adae %>%  filter(USUBJID==subject)
+  cat("#### Adverse events: ", ae_info$AETERM, "\n")
+  cat('\n')
+}
+```
